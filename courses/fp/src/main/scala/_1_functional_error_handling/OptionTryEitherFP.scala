@@ -12,7 +12,7 @@ import scala.util.Try
  * - Report with as much information as possible
  * - Never go silent about errors
  */
-object OptionTryEither:
+object OptionTryEitherFP:
   /* Type system makes errors explicit:
    * - Free documentation
    * - Enforces error handling on compile time
