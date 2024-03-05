@@ -1,4 +1,9 @@
-object FP:
+package _0_introduction_to_fp
+
+import cats.Eq
+import cats.implicits.catsSyntaxEq
+
+object IntroductionToFP:
   // pure
   private def addPure(x: Int, y: Int): Int = x + y
 
@@ -61,7 +66,7 @@ object FP:
   // tail recursion
   // specific case of recursion, in which the recursive call is the last step in the function
   // we can use the annotation @tailrec to make it safer
-  def sumSafer(list: List[Int]): Int =
+  private def sumSafer(list: List[Int]): Int =
     @scala.annotation.tailrec
     def doSum(in: List[Int], acc: Int): Int = in match
       case Nil => acc
@@ -114,3 +119,10 @@ object FP:
 
     val largeSum = sumSafer(List.fill(10000000)(1))
     println(s"Large sum ${largeSum}")
+
+    // Cats
+    val useIt = Eq.eqv(3, 3)
+    val nicer = 3 === 3
+
+    println(s"Is equals: $useIt")
+    println(s"Is equals, but nicer: $nicer")
