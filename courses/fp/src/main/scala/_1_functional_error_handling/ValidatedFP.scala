@@ -37,13 +37,14 @@ object ValidatedFP:
   val age = -22
 
   // Combining the two computations
-  // Can't use flatMap, because doesn't have it
+  // Can't use flatMap directly on Validated, because it's not a Monad
+  // We need to use ValidatedNec or ValidatedNel
+  // Because it's a Semigroup, it can accumulate errors
   val enterLiquorShop =
-    ageIsPositive(age) *> majorInTheUS(age)
+    ageIsPositive(age) *> majorInTheUS(age) // Invalid(Chain(MyError(Age must be positive), MyError(You must be 21 or older)))
 
   // Vertical composition
   // Two pieces of data that are independent of each other
-
   class Customer(name: String, age: Int)
 
   def emptyCheck(name: String): ValidatedNec[MyError, String] =
@@ -60,3 +61,57 @@ object ValidatedFP:
   // mapN is used when we care about the result of both computations
   // In both cases, the errors are accumulated
 
+  // Composition restrictions
+  // - Regarding the error type, the two Validated instances must have the same error type
+  // - Existing Semigroup instance for the error type
+  trait Semigroup2[A]:
+    def combine(x: A, y: A): A // how you combine both error cases
+
+  // Usually error types do not combine, and there's no meaningful way of creating a Semigroup instance for them
+  sealed trait BusinessError
+  case class MaxLengthExceeded(max: Int, actual: Int) extends BusinessError
+  case class NumberParseError(inputString: String) extends BusinessError
+  case class CustomError(inputString: String) extends BusinessError
+
+  // Non-Empty List and Non-Empty Chain are Semigroups
+  // They can be combined
+  val x = NonEmptyList.of(1)
+
+  // Combining two NonEmptyLists
+  val xs = x ++ List(2, 3)
+
+  // ValidatedNel
+  // Uses NonEmptyList to accumulate errors
+  val validNumber = 123.validNel[String]
+  val invalidNumber = "not a number".invalidNel[Int]
+  val combined = validNumber *> invalidNumber
+
+  // Chaining validations
+  // Sometimes fail-fast is desired, like in Either
+  def parseAnInt(input: String): ValidatedNel[BusinessError, Int] =
+    if input.matches("-?[0-9]+") then input.toInt.validNel
+    else NumberParseError(input).invalidNel
+
+  def someMajorInTheUSValidation(input: Int): ValidatedNel[BusinessError, Int] =
+    if input >= 21 then input.validNel
+    else CustomError("You must be 21 or older").invalidNel
+
+  def someAgeValidation(input: String): ValidatedNel[BusinessError, Int] =
+    parseAnInt(input).andThen(someMajorInTheUSValidation)
+
+  val ageValidation = someAgeValidation("22") // Valid(22)
+
+  // Traverse
+  // Applies validation over a collection
+  val rawNumbers = List("1", "2", "3", "4", "5")
+
+  // Applies parseAnInt to each element of the list
+  val validatedNumbers = rawNumbers.traverse(parseAnInt) // Valid(List(1, 2, 3, 4, 5))
+
+  @main
+  def main2(): Unit =
+    println("enterLiquorShop : " + enterLiquorShop)
+    println("customer : " + customer)
+    println("combined : " + combined)
+    println("ageValidation : " + ageValidation)
+    println("validatedNumbers : " + validatedNumbers)

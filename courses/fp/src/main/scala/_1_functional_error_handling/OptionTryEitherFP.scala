@@ -62,7 +62,7 @@ object OptionTryEitherFP:
   def average(values: List[Float]): Float =
     safeDivide(values.sum, values.size).get
 
-  val failureAverage = average(List.empty[Float]) // java.util.NoSuchElementException: None.get
+  //val failureAverage = average(List.empty[Float]) // java.util.NoSuchElementException: None.get
 
   // Option 1, provide a default value, a way of recovering from the error
   def averageOption1(values: List[Float]): Float =
@@ -152,3 +152,25 @@ object OptionTryEitherFP:
   //      id <- parseId(request).toEither.left.map(_ => Error("Invalid id"))
   //      account <- fetchAccount(id).left.map(_ => Error("Account not found"))
   //    yield account.address
+
+  @main
+  def main(): Unit =
+    println(safeDivide(42, 2)) // Some(21)
+    println(safeDivide(42, 0)) // None
+    println(safeParseInt("42")) // Success(42)
+    println(safeParseInt("01")) // Failure(java.lang.NumberFormatException: For input string: "01")
+    println(eitherDivision(42, 2)) // Right(21)
+    println(eitherDivision(42, 0)) // Left(Division by zero)
+    println(safeParseIntEither("01")) // Left(Failure 01: class java.lang.NumberFormatException)
+    println(average(List(1, 2, 3))) // 2.0
+    println(averageOption1(List.empty[Float])) // 0
+    println(averageOption2(List.empty[Float])) // 0
+    println(averageFold(List.empty[Float])) // 0.0
+    println(ok1) // Some(21)
+    println(ok2) // Some(42)
+    println(bad) // None
+    println(showAddress(Request())) // Right(Address(123 Main St))
+    println(showAddress2(Request())) // Right(Address(123 Main St))
+    println(showAddress3(Request())) // Error: type mismatch; found: Option[Account], required: Either[Error, Account]
+    // println(showAddress4(Request())) // Error: type mismatch; found: Option[Account], required: Either[Error, Account]
+
