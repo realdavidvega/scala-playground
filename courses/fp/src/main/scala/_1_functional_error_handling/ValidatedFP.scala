@@ -20,9 +20,16 @@ object ValidatedFP:
   class MyError(val message: String)
 
   // Can't use Validated directly, because it's not a Monad
-  // Use ValidatedNec (NonEmptyChain) instead
-  // NonEmptyChain is a data type that can't be empty
+  // Use ValidatedNec (NonEmptyChain) instead or ValidatedNel (NonEmptyList)
+  // NonEmptyChain is a data type that can't be empty, same as NonEmptyList
   // This allows us to accumulate errors
+
+  val y = NonEmptyChain.one(1)
+  val z = y ++ NonEmptyChain.of(2, 3)
+
+  // The motivation behind NonEmptyChain is because, with NonEmptyList, the append operation is O(nˆ2)
+  // With NonEmptyChain, the append operation is O(1)
+  // NonEmptyChain is a better choice for accumulating errors, because it's more efficient
 
   // Horizontal composition
   // Two pieces of data that depend on each other
@@ -108,6 +115,60 @@ object ValidatedFP:
   // Applies parseAnInt to each element of the list
   val validatedNumbers = rawNumbers.traverse(parseAnInt) // Valid(List(1, 2, 3, 4, 5))
 
+  // Why not map?
+  // 1. Validation function f: A => ValidatedNel[E, B]
+  // 2. Collection type xs: List[A]
+  val badMap = List(11,12).map(someMajorInTheUSValidation) // List(Invalid(NonEmptyList(CustomError(You must be 21 or older))), Invalid(NonEmptyList(CustomError(You must be 21 or older))))
+  val badTraverse = List(11,12).traverse(someMajorInTheUSValidation) // Invalid(NonEmptyList(CustomError(You must be 21 or older), CustomError(You must be 21 or older)))
+
+  // Often what we want, is what traverse does
+  // Meaning it returns a whole validated list, or a list of errors
+  val goodTraverse = List(22, 23, 24).traverse(someMajorInTheUSValidation) // Valid(List(22, 23, 24))
+
+  // Parallel Either composition
+  // Wrapping validations into non-empty chains
+  type BusinessErrors = NonEmptyChain[BusinessError]
+
+  def validateAnAge(age: Int): Either[BusinessErrors, Int] =
+    Either.cond(age >= 21, age, NonEmptyChain.one(CustomError("You must be 21 or older")))
+
+  def validateAName(name: String): Either[BusinessErrors, String] =
+    Either.cond(name.nonEmpty, name, NonEmptyChain.one(CustomError("Name can't be empty")))
+
+  // Parallel composition
+  // Either would fail fast, but ValidatedNec would accumulate errors
+  val parallelComposition = (
+    validateAName("John").toValidated,
+    validateAnAge(22).toValidated
+  ).mapN((name, age) => Customer(name, age)).toEither // Right(Customer(John,22))
+
+  // Parallel composition with parMapN
+  // parMapN is a method that comes from the Semigroupal type class
+  // It's a parallel version of mapN, that works with Validated
+  // The Parallel typeclass does the conversions under the hood
+  val parallelComposition2 = (
+    validateAName("John"),
+    validateAnAge(22)
+  ).parMapN((name, age) => Customer(name, age)) // Right(Customer(John,22)
+
+  // Functional validation takeaways
+  // Small, composable, reusable, testable validations
+  // Compose using *>, andThen, mapN...
+
+  // Discerning Validation
+  // When to fail fast, when to fail loudly
+
+  def readFile(path: String): Either[MyError, String] = ???
+  def parseConfig(config: String): Either[MyError, Map[String, String]] = ???
+  def validateConfig(config: Map[String, String]): Validated[MyError, Map[String, String]] = ???
+
+  def startApp(configPath: String): Either[MyError, Map[String, String]] =
+    for
+      file <- readFile(configPath) // fail fast
+      config <- parseConfig(file) // fail fast
+      validatedConfig <- validateConfig(config).toEither // give back several errors, and then fail
+    yield validatedConfig // if we get here, we have a valid config
+
   @main
   def main2(): Unit =
     println("enterLiquorShop : " + enterLiquorShop)
@@ -115,3 +176,10 @@ object ValidatedFP:
     println("combined : " + combined)
     println("ageValidation : " + ageValidation)
     println("validatedNumbers : " + validatedNumbers)
+
+    println("xsMap : " + badMap)
+    println("xsTraverse : " + badTraverse)
+    println("goodTraverse : " + goodTraverse)
+
+    println("parallelComposition : " + parallelComposition)
+    println("parallelComposition2 : " + parallelComposition2)
