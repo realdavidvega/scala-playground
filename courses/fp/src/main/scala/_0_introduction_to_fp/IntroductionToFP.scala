@@ -1,7 +1,7 @@
 package _0_introduction_to_fp
 
-import cats.Eq
 import cats.implicits.catsSyntaxEq
+import cats.Eq
 
 object IntroductionToFP:
   // pure
@@ -38,7 +38,7 @@ object IntroductionToFP:
   private def mergeAccountsDB(a: Account, b: Account): Account =
     val merged = Account(a.balance + b.balance)
     accountDB.remove(Set(a, b)) // side effect
-    accountDB.save(merged) // side effect
+    accountDB.save(merged)      // side effect
     merged
 
   // higher order functions (first-class citizens)
@@ -60,7 +60,7 @@ object IntroductionToFP:
 
   // if list is empty, return 0, else return the sum of the head and the rest
   def sum(list: List[Int]): Int = list match
-    case Nil => 0
+    case Nil          => 0
     case head :: tail => head + sum(tail)
 
   // tail recursion
@@ -69,7 +69,7 @@ object IntroductionToFP:
   private def sumSafer(list: List[Int]): Int =
     @scala.annotation.tailrec
     def doSum(in: List[Int], acc: Int): Int = in match
-      case Nil => acc
+      case Nil          => acc
       case head :: tail => doSum(tail, head + acc)
     doSum(list, 0)
 
@@ -126,3 +126,5 @@ object IntroductionToFP:
 
     println(s"Is equals: $useIt")
     println(s"Is equals, but nicer: $nicer")
+  end main
+end IntroductionToFP

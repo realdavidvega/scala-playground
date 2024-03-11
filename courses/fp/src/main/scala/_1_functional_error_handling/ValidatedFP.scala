@@ -14,7 +14,7 @@ object ValidatedFP:
   sealed trait Validated2[+E, +A]
 
   // Looks like Either, but has different operations
-  case class Valid2[A](value: A) extends Validated2[Nothing, A]
+  case class Valid2[A](value: A)   extends Validated2[Nothing, A]
   case class Invalid2[E](error: E) extends Validated2[E, Nothing]
 
   class MyError(val message: String)
@@ -34,7 +34,7 @@ object ValidatedFP:
   // Horizontal composition
   // Two pieces of data that depend on each other
   def ageIsPositive(age: Int): ValidatedNec[MyError, Int] =
-    if (age >= 0) age.valid
+    if age >= 0 then age.valid
     else MyError("Age must be positive").invalidNec
 
   def majorInTheUS(age: Int): ValidatedNec[MyError, Int] =
@@ -48,7 +48,9 @@ object ValidatedFP:
   // We need to use ValidatedNec or ValidatedNel
   // Because it's a Semigroup, it can accumulate errors
   val enterLiquorShop =
-    ageIsPositive(age) *> majorInTheUS(age) // Invalid(Chain(MyError(Age must be positive), MyError(You must be 21 or older)))
+    ageIsPositive(age) *> majorInTheUS(
+      age
+    ) // Invalid(Chain(MyError(Age must be positive), MyError(You must be 21 or older)))
 
   // Vertical composition
   // Two pieces of data that are independent of each other
@@ -77,8 +79,8 @@ object ValidatedFP:
   // Usually error types do not combine, and there's no meaningful way of creating a Semigroup instance for them
   sealed trait BusinessError
   case class MaxLengthExceeded(max: Int, actual: Int) extends BusinessError
-  case class NumberParseError(inputString: String) extends BusinessError
-  case class CustomError(inputString: String) extends BusinessError
+  case class NumberParseError(inputString: String)    extends BusinessError
+  case class CustomError(inputString: String)         extends BusinessError
 
   // Non-Empty List and Non-Empty Chain are Semigroups
   // They can be combined
@@ -89,9 +91,9 @@ object ValidatedFP:
 
   // ValidatedNel
   // Uses NonEmptyList to accumulate errors
-  val validNumber = 123.validNel[String]
+  val validNumber   = 123.validNel[String]
   val invalidNumber = "not a number".invalidNel[Int]
-  val combined = validNumber *> invalidNumber
+  val combined      = validNumber *> invalidNumber
 
   // Chaining validations
   // Sometimes fail-fast is desired, like in Either
@@ -118,12 +120,17 @@ object ValidatedFP:
   // Why not map?
   // 1. Validation function f: A => ValidatedNel[E, B]
   // 2. Collection type xs: List[A]
-  val badMap = List(11,12).map(someMajorInTheUSValidation) // List(Invalid(NonEmptyList(CustomError(You must be 21 or older))), Invalid(NonEmptyList(CustomError(You must be 21 or older))))
-  val badTraverse = List(11,12).traverse(someMajorInTheUSValidation) // Invalid(NonEmptyList(CustomError(You must be 21 or older), CustomError(You must be 21 or older)))
+  val badMap = List(11, 12).map(
+    someMajorInTheUSValidation
+  ) // List(Invalid(NonEmptyList(CustomError(You must be 21 or older))), Invalid(NonEmptyList(CustomError(You must be 21 or older))))
+  val badTraverse = List(11, 12).traverse(
+    someMajorInTheUSValidation
+  ) // Invalid(NonEmptyList(CustomError(You must be 21 or older), CustomError(You must be 21 or older)))
 
   // Often what we want, is what traverse does
   // Meaning it returns a whole validated list, or a list of errors
-  val goodTraverse = List(22, 23, 24).traverse(someMajorInTheUSValidation) // Valid(List(22, 23, 24))
+  val goodTraverse =
+    List(22, 23, 24).traverse(someMajorInTheUSValidation) // Valid(List(22, 23, 24))
 
   // Parallel Either composition
   // Wrapping validations into non-empty chains
@@ -158,14 +165,14 @@ object ValidatedFP:
   // Discerning Validation
   // When to fail fast, when to fail loudly
 
-  def readFile(path: String): Either[MyError, String] = ???
-  def parseConfig(config: String): Either[MyError, Map[String, String]] = ???
+  def readFile(path: String): Either[MyError, String]                                      = ???
+  def parseConfig(config: String): Either[MyError, Map[String, String]]                    = ???
   def validateConfig(config: Map[String, String]): Validated[MyError, Map[String, String]] = ???
 
   def startApp(configPath: String): Either[MyError, Map[String, String]] =
     for
-      file <- readFile(configPath) // fail fast
-      config <- parseConfig(file) // fail fast
+      file            <- readFile(configPath)            // fail fast
+      config          <- parseConfig(file)               // fail fast
       validatedConfig <- validateConfig(config).toEither // give back several errors, and then fail
     yield validatedConfig // if we get here, we have a valid config
 
@@ -183,3 +190,4 @@ object ValidatedFP:
 
     println("parallelComposition : " + parallelComposition)
     println("parallelComposition2 : " + parallelComposition2)
+end ValidatedFP

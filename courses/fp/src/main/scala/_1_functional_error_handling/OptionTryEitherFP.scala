@@ -36,7 +36,9 @@ object OptionTryEitherFP:
   def safeParseInt(s: String): Try[Float] = Try(s.toFloat)
 
   val success = safeParseInt("42") // Success(42)
-  val failure = safeParseInt("01") // Failure(java.lang.NumberFormatException: For input string: "01")
+  val failure = safeParseInt(
+    "01"
+  ) // Failure(java.lang.NumberFormatException: For input string: "01")
 
   /* Either: represents a value of one of two possible types
    * - Left: represents failure (not restricted to the Throwable type)
@@ -51,9 +53,7 @@ object OptionTryEitherFP:
 
   // Bridge Try and Either
   def safeParseIntEither(s: String): Either[String, Float] =
-    Try(s.toFloat)
-      .toEither
-      .left
+    Try(s.toFloat).toEither.left
       .map(failure => s"Failure $s: ${failure.getClass}")
 
   val failed = safeParseIntEither("01") // Left(Failure 01: class java.lang.NumberFormatException)
@@ -62,7 +62,7 @@ object OptionTryEitherFP:
   def average(values: List[Float]): Float =
     safeDivide(values.sum, values.size).get
 
-  //val failureAverage = average(List.empty[Float]) // java.util.NoSuchElementException: None.get
+  // val failureAverage = average(List.empty[Float]) // java.util.NoSuchElementException: None.get
 
   // Option 1, provide a default value, a way of recovering from the error
   def averageOption1(values: List[Float]): Float =
@@ -74,7 +74,7 @@ object OptionTryEitherFP:
   def averageOption2(values: List[Float]): Float =
     safeDivide(values.sum, values.size.toFloat) match
       case Some(value) => value
-      case None => 0
+      case None        => 0
 
   val successAverage2 = averageOption2(List.empty[Float]) // 0
 
@@ -89,7 +89,7 @@ object OptionTryEitherFP:
     def fold[B](onLeft: E => B, onRight: A => B): B
 
   def averageFold(values: List[Float]): Float =
-    safeDivide(values.sum, values.size).fold(0.0f) { x => x }
+    safeDivide(values.sum, values.size).fold(0.0f)(x => x)
 
   val successFold = averageFold(List.empty[Float]) // 0.0
 
@@ -97,7 +97,7 @@ object OptionTryEitherFP:
   // We always "peel off" the Option, Try, or Either to get the value
   // What if we want to keep the error context?
   // Higher order functions to the rescue (lift functions into the error context)
-  val ok1 = safeDivide(42, 2) // Some(21)
+  val ok1 = safeDivide(42, 2)            // Some(21)
   val ok2 = safeDivide(42, 2).map(_ * 2) // Some(42)
   val bad = safeDivide(42, 0).map(_ + 1) // None
 
@@ -119,7 +119,7 @@ object OptionTryEitherFP:
     Right(Account())
 
   def showAddress(request: Request): Either[Error, Address] =
-    parseId(request).flatMap { id => // flatMap is the sequencing operation
+    parseId(request).flatMap { id =>    // flatMap is the sequencing operation
       fetchAccount(id).map { account => // map is the lifting operation
         account.address
       }
@@ -133,7 +133,7 @@ object OptionTryEitherFP:
 
   def showAddress2(request: Request): Either[Error, Address] =
     for // for comprehension is a syntactic sugar for flatMap and map
-      id <- parseId(request) // flatMap - Either[Error, String]
+      id      <- parseId(request) // flatMap - Either[Error, String]
       account <- fetchAccount(id) // map - Either[Error, Account]
     yield account.address // Either[Error, Address]
 
@@ -141,7 +141,7 @@ object OptionTryEitherFP:
   // What if we want to sequence operations that may fail in different ways?
   def showAddress3(request: Request): Either[Error, Address] =
     for
-      id <- parseId(request) // Try[String]
+      id      <- parseId(request) // Try[String]
       account <- fetchAccount(id) // Option[Account]
     yield account.address
     // Error: type mismatch; found: Option[Account], required: Either[Error, Account]
@@ -155,22 +155,24 @@ object OptionTryEitherFP:
 
   @main
   def main(): Unit =
-    println(safeDivide(42, 2)) // Some(21)
-    println(safeDivide(42, 0)) // None
+    println(safeDivide(42, 2))  // Some(21)
+    println(safeDivide(42, 0))  // None
     println(safeParseInt("42")) // Success(42)
     println(safeParseInt("01")) // Failure(java.lang.NumberFormatException: For input string: "01")
-    println(eitherDivision(42, 2)) // Right(21)
-    println(eitherDivision(42, 0)) // Left(Division by zero)
+    println(eitherDivision(42, 2))    // Right(21)
+    println(eitherDivision(42, 0))    // Left(Division by zero)
     println(safeParseIntEither("01")) // Left(Failure 01: class java.lang.NumberFormatException)
-    println(average(List(1, 2, 3))) // 2.0
+    println(average(List(1, 2, 3)))   // 2.0
     println(averageOption1(List.empty[Float])) // 0
     println(averageOption2(List.empty[Float])) // 0
-    println(averageFold(List.empty[Float])) // 0.0
-    println(ok1) // Some(21)
-    println(ok2) // Some(42)
-    println(bad) // None
-    println(showAddress(Request())) // Right(Address(123 Main St))
-    println(showAddress2(Request())) // Right(Address(123 Main St))
-    println(showAddress3(Request())) // Error: type mismatch; found: Option[Account], required: Either[Error, Account]
+    println(averageFold(List.empty[Float]))    // 0.0
+    println(ok1)                               // Some(21)
+    println(ok2)                               // Some(42)
+    println(bad)                               // None
+    println(showAddress(Request()))            // Right(Address(123 Main St))
+    println(showAddress2(Request()))           // Right(Address(123 Main St))
+    println(
+      showAddress3(Request())
+    ) // Error: type mismatch; found: Option[Account], required: Either[Error, Account]
     // println(showAddress4(Request())) // Error: type mismatch; found: Option[Account], required: Either[Error, Account]
-
+end OptionTryEitherFP
