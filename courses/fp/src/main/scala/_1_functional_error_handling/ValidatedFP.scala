@@ -10,7 +10,7 @@ import cats.syntax.all.*
  */
 object ValidatedFP:
   // Validated is a data type that can accumulate errors
-  // Covariant, error-acculumating friendly type from Cats
+  // Covariant, error-accumulating friendly type from Cats
   sealed trait Validated2[+E, +A]
 
   // Looks like Either, but has different operations
@@ -150,9 +150,9 @@ object ValidatedFP:
   ).mapN((name, age) => Customer(name, age)).toEither // Right(Customer(John,22))
 
   // Parallel composition with parMapN
-  // parMapN is a method that comes from the Semigroupal type class
+  // parMapN is a method that comes from the Semigroup type class
   // It's a parallel version of mapN, that works with Validated
-  // The Parallel typeclass does the conversions under the hood
+  // The Parallel type-class does the conversions under the hood
   val parallelComposition2 = (
     validateAName("John"),
     validateAnAge(22)
