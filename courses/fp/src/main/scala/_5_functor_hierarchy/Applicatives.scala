@@ -106,5 +106,9 @@ object Applicatives:
     // Right identity
     // fa.product(pure(())).map(_._1) === fa
 
+    //              Applies                To
+    // Functor      Pure fn.               One F[A]
+    // Applicative  Pure fn.               Fixed number of F[A]
+
   end main2
 end Applicatives

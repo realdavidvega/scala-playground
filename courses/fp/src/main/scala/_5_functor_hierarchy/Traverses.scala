@@ -72,10 +72,10 @@ object Traverses:
     //  override def map[A, B](fa: F[A])(f: A => B): F[B] =
     //    traverse[Id, A, B](fa)(f)
 
-    //              Applies       To
-    // Functor      Pure fn.      One F[A]
-    // Applicative  Pure fn.      Fixed number of F[A]
-    // Traverse     Effect fn. Every element in a container
+    //              Applies                To
+    // Functor      Pure fn.               One F[A]
+    // Applicative  Pure fn.               Fixed number of F[A]
+    // Traverse     Effect fn.             Every element in a container
 
   end main3
 end Traverses

@@ -42,7 +42,7 @@ object Functors:
     // or implicit
     given optionFunctor: MyFunctor[Option] = new MyFunctor[Option]:
       def map[A, B](fa: Option[A])(f: A => B): Option[B] = fa match
-        case None => None
+        case None    => None
         case Some(a) => Some(f(a))
 
     // Cats provides nicer syntax
@@ -68,6 +68,9 @@ object Functors:
 
     // A function transforms a function A => B into a function F[A] => F[B]
     // We say we lift the function to F
+
+    //              Applies                To
+    // Functor      Pure fn.               One F[A]
 
   end main
 end Functors
