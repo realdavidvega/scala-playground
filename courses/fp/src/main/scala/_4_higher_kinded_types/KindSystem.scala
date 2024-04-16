@@ -78,9 +78,34 @@ object KindSystem:
     // But still we are introducing an existence type of kind *
 
     // Workaround with partial type application
+    // We can introduce an alias of kind * -> *
+    type StringOr[A] = Either[String, A]
 
+    trait Foo2[F[_]]:
+      def apply[A](fa: A): F[A]
 
+    lazy val maybeFoo2 = new Foo2[StringOr]:
+      override def apply[A](a: A): StringOr[A] = Right(a)
 
+    val maybeFoo2a = maybeFoo2(5)
+    println(maybeFoo2a)
+    // maybeFoo2a: StringOr[Int] = Right(5)
+
+    // Type alias limitations
+    // But we want to define Foo for any Either[E, A], not just E as String
+    type TOrE[T, A] = Either[T, A]
+
+    // We could do it on a very bad way, but we have the kind-projector plugin
+    // def eitherFoo[T] = new Foo[Either[T, *]]:
+    //   override def apply[A](a: A): Either[T, A] = Right(a)
+    // val eitherFoo = new eitherFoo[String](5)
+    // eitherFoo: Either[String, Int] = Right(5)
+
+    // Scala 3 to the RESCUE! Type lambdas
+    type T[E] = [A] =>> Either[E, A]
+
+    // lazy val eitherFoo = new Foo[T[E]]:
+    //  override def apply[A](a: A): T[A] = Right(a)
 
   end main2
 end KindSystem
