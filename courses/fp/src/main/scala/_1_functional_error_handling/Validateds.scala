@@ -8,7 +8,7 @@ import cats.syntax.all.*
  * - Dependencies between the different computations are not explicit
  * - No error accumulation, if one of the computations fails, the whole computation fails
  */
-object ValidatedFP:
+object Validateds:
   // Validated is a data type that can accumulate errors
   // Covariant, error-accumulating friendly type from Cats
   sealed trait Validated2[+E, +A]
@@ -190,4 +190,4 @@ object ValidatedFP:
 
     println("parallelComposition : " + parallelComposition)
     println("parallelComposition2 : " + parallelComposition2)
-end ValidatedFP
+end Validateds
