@@ -13,10 +13,10 @@ object Monads:
 
     // Monad examples
     // One Future requires the previous one to be completed
-    import scala.concurrent._
+    import scala.concurrent.*
 
     def retrieveOrder(orderId: Int): Future[List[Int]] = ???
-    def retrievePrice(orderId: Int): Future[Int] = ???
+    def retrievePrice(orderId: Int): Future[Int]       = ???
 
     // or implicit in Scala 2
     def total(orderId: Int)(using ec: ExecutionContext): Future[Int] =
@@ -26,7 +26,7 @@ object Monads:
 
     // Executing the next step depends on the previous one not failing
     def getStudentById(id: Int): Option[String] = ???
-    def getAddress(s: String): Option[String] = ???
+    def getAddress(s: String): Option[String]   = ???
 
     def getStudentAddress = getStudentById(42).flatMap { s =>
       // explicitly doing this for clarity
@@ -63,10 +63,10 @@ object Monads:
 
     // Still Monad
     def getStudentAddress4 =
-      for {
+      for
         student <- getStudentById(43)
         address <- getAddress(student)
-      } yield address
+      yield address
 
     // Monad instance for lists
     // Several (or no) results
@@ -75,10 +75,10 @@ object Monads:
     println(oneOne)
     // List(1)
 
-    val several = for {
+    val several = for
       x <- List(1, 2)
       y <- List(x + 1, x + 2)
-    } yield y
+    yield y
     println(several)
     // List(2, 3, 3, 4)
 
@@ -121,12 +121,12 @@ object Monads:
     // We can use these abstractions for validation, error handling, etc.
     // Also for dealing with concurrency and side effects
     // We most of the times don't have to define new abstractions
-  
+
     //              Applies                To
     // Functor      Pure fn.               One F[A]
     // Applicative  Pure fn.               Fixed number of F[A]
     // Traverse     Effect fn.             Every element in a container
     // Monad        Effect fn. with deps.  One F[A]
-    
+
   end main4
 end Monads

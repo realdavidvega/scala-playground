@@ -144,8 +144,7 @@ object AsyncEffects:
     trait MyAsync[F[_]] extends Sync[F]:
       // expects another function (callback)
       def async_[A](k: (Either[Throwable, A] => Unit) => Unit): F[A]
-      def async[A](k: (Either[Throwable, A] => Unit) =>
-                  F[Option[F[Unit]]]): F[A]
+      def async[A](k: (Either[Throwable, A] => Unit) => F[Option[F[Unit]]]): F[A]
 
     // Async example
     def fromFuture[F[_]: Async, A](fa: => Future[A])(ec: ExecutionContext): F[A] =
@@ -169,7 +168,7 @@ object AsyncEffects:
           val stage: CompletableFuture[Unit] = cf.handle[Unit] {
             // I'm done, call the callback
             case (a, null) => cb(Right(a))
-            case (_, e) => cb(Left(e))
+            case (_, e)    => cb(Left(e))
           }
           // register the finalizer, that will cancel the stage
           val finalizer: Option[F[Unit]] =
@@ -189,10 +188,10 @@ object AsyncEffects:
 
     // Outer Layer
     val ioa: IO[Int] = logic[IO]()
-    
+
     // However, it introduces a level of indirection
     // Some libraries like Monix or ZIO provide additional combinations directly to their data types
     // Depends on the skill and experience of the library
-    
+
   end main2
 end AsyncEffects

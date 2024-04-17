@@ -8,13 +8,13 @@ object HKTs:
     // The problem
     // These three functions are identical, except for the types
     def tuple[A, B](as: List[A], bs: List[B]): List[(A, B)] =
-      as.flatMap { a => bs.map { b => (a, b) } }
+      as.flatMap(a => bs.map(b => (a, b)))
 
     def tuple2[A, B](as: Option[A], bs: Option[B]): Option[(A, B)] =
-      as.flatMap { a => bs.map { b => (a, b) } }
+      as.flatMap(a => bs.map(b => (a, b)))
 
     def tuple3[E, B, C](as: Either[E, B], bs: Either[E, C]): Either[E, (B, C)] =
-      as.flatMap { a => bs.map { b => (a, b) } }
+      as.flatMap(a => bs.map(b => (a, b)))
 
     // How we abstract over flatMap and map?
 
@@ -31,7 +31,7 @@ object HKTs:
     def listWithThings[A](value: A): List[A] = List(value)
 
     // generic container with specific element type Int
-    def thingWithInts[F[_]](value: Int): F[Int] = ???
+    def thingWithInts[F[_]](value: Int): F[Int]          = ???
     def thingWithStrings[F[_]](value: String): F[String] = ???
 
     // The solution, part #2
@@ -43,7 +43,7 @@ object HKTs:
     // We can now define our generic function
     // We inject the bind with our common type constructor
     def finallyTupleF[F[_], A, B](fa: F[A], fb: F[B])(implicit F: Bind[F]): F[(A, B)] =
-      F.flatMap(fa) { a => F.map(fb)((a, _)) }
+      F.flatMap(fa)(a => F.map(fb)((a, _)))
 
     // Using HKT functions
     //    import cats.syntax.all._

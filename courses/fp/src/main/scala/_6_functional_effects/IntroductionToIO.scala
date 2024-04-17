@@ -102,15 +102,14 @@ object IntroductionToIO:
     // By-name parameters
     // Scala has a nice syntax for delaying evaluation
     // => A are used to suspend execution
-    object NicerIO {
+    object NicerIO:
       def apply[A](body: => A): MyIO[A] = MyIO(() => body)
-    }
 
-    val betterHello = NicerIO { println("Hello World, NicerIO!") }
+    val betterHello = NicerIO(println("Hello World, NicerIO!"))
     betterHello.unsafeRun()
 
     // Running Cats Effect IO
-    import cats.effect._
+    import cats.effect.*
     import concurrent.duration.DurationInt
 
     val ioLife = IO(println("Hello World, Cats IO!"))
@@ -118,17 +117,17 @@ object IntroductionToIO:
 
     // We can run IO in any different ways
     val ioLife2 = IO.pure(42)
-    ioLife2.unsafeRunSync() // 42
+    ioLife2.unsafeRunSync()           // 42
     ioLife2.unsafeRunTimed(5.seconds) // Some(42)
     ioLife2.unsafeRunAsync {
-      case Left(e) => println(s"Computation failed with exception $e")
+      case Left(e)  => println(s"Computation failed with exception $e")
       case Right(a) => println(s"Computation succeeded with result $a")
-    } // Computation succeeded with result 42
+    }                        // Computation succeeded with result 42
     ioLife2.unsafeToFuture() // Future(42)
 
     // IO Applications
     // We use IOApp so we never have to call unsafe operators
-    import cats.syntax.all._
+    import cats.syntax.all.*
 
     object MyIOApp extends IOApp:
       def run(args: List[String]): IO[ExitCode] =

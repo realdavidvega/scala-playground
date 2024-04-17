@@ -25,7 +25,7 @@ object KindSystem:
     // Type application
     // Option is a type constructor, it has kind * -> *
     sealed trait Option3[+A]
-    case object None extends Option3[Nothing]
+    case object None             extends Option3[Nothing]
     case class Some[A](value: A) extends Option3[A]
 
     // Int is a value type, it has kind *
@@ -53,7 +53,7 @@ object KindSystem:
     // Existential types
     // We know what the type is of contained elements
     // But we forget what the type is
-    val maybe: Option[_] = Option(5)
+    val maybe: Option[?] = Option(5)
     // maybe: Option[Int] = Some(5)
 
     // There is little we can do about them

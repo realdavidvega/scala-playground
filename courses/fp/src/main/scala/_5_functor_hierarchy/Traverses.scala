@@ -20,7 +20,7 @@ object Traverses:
         traverse(fga)(ga => ga)
 
     // Traverse example
-    val okList = List(1, 2, 3)
+    val okList    = List(1, 2, 3)
     val errorList = List(1, 0)
 
     def f(n: Int): ValidatedNec[String, Int] =

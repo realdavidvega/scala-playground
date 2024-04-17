@@ -30,9 +30,9 @@ object ADTs:
     // Sealed types
     // Restricted hierarchy of classes
     sealed abstract class Color
-    case object Red extends Color
+    case object Red   extends Color
     case object Green extends Color
-    case object Blue extends Color
+    case object Blue  extends Color
 
     val color: Color = Red
     println(color)
@@ -42,26 +42,23 @@ object ADTs:
     // Giving a choice, aka, coproduct types
     case class Role(name: String)
 
-    sealed trait SpecialUser extends Product with Serializable
-    case class Admin(name: String, roles: List[Role]) extends SpecialUser
+    sealed trait SpecialUser                                extends Product with Serializable
+    case class Admin(name: String, roles: List[Role])       extends SpecialUser
     case class Customer(name: String, birthDate: LocalDate) extends SpecialUser
 
     // Pattern matching
-    object UserMatch {
-      def name(user: SpecialUser): String = user match {
-        case Admin(name, _) => name
+    object UserMatch:
+      def name(user: SpecialUser): String = user match
+        case Admin(name, _)    => name
         case Customer(name, _) => name
-      }
-    }
 
     val customerName = UserMatch.name(Customer("John", LocalDate.now()))
     println(customerName)
     // John
 
     // Exhaustive pattern matching
-    def nameWrong(user: SpecialUser): String = user match {
+    def nameWrong(user: SpecialUser): String = user match
       case Admin(name, _) => name
-    }
     // match may not be exhaustive. It would fail on pattern case: Customer(_, _)
 
     // Take into account, that, in Scala, every case class extends Product and Serializable automatically
@@ -71,17 +68,17 @@ object ADTs:
     // Either is a sum type
     sealed trait MyEither[+E, +A]
 
-    case class Left[+E](value: E) extends MyEither[E, Nothing]
+    case class Left[+E](value: E)  extends MyEither[E, Nothing]
     case class Right[+A](value: A) extends MyEither[Nothing, A]
 
     // Cats brings many niceties to the table
-    import cats.syntax.all._
+    import cats.syntax.all.*
 
-    type Error = String
+    type Error   = String
     type Success = Int
 
     def toInt(str: String): Either[Error, Success] =
-      if(str.forall(_.isDigit)) str.toInt.asRight
+      if str.forall(_.isDigit) then str.toInt.asRight
       else s"Could not convert $str to int".asLeft
 
     val error = toInt("0a")
@@ -94,8 +91,8 @@ object ADTs:
     type Choice = Either[Int, Either[Boolean, String]]
 
     def typed(from: String): Choice =
-      if (from.forall(_.isDigit)) from.toInt.asLeft
-      else if (from == "true" || from == "false") from.toBoolean.asLeft.asRight
+      if from.forall(_.isDigit) then from.toInt.asLeft
+      else if from == "true" || from == "false" then from.toBoolean.asLeft.asRight
       else from.asRight.asRight
 
     val typedTrue = typed("true")

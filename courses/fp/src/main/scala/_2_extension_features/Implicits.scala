@@ -119,9 +119,9 @@ object Implicits:
     // Class is closed, we have no control over it
     // We can extend them with implicits
     class NoVowels(value: String):
-      private val str: String = value.replaceAll("[aeiou]", "")
+      private val str: String          = value.replaceAll("[aeiou]", "")
       def +(other: NoVowels): NoVowels = NoVowels(str + other.str)
-      override def toString = s"NoVowels($str)"
+      override def toString            = s"NoVowels($str)"
 
     implicit def stringToNoVowels(s: String): NoVowels = NoVowels(s)
 

@@ -49,7 +49,7 @@ object CatsDataTypes:
     // 1 + 2 * 3
 
     // Option
-    import cats.syntax.all._
+    import cats.syntax.all.*
 
     val empty: Option[Nothing] = None
     // val empty: Option[Int] = None

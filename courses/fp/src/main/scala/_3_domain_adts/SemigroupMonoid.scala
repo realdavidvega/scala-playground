@@ -61,20 +61,20 @@ object SemigroupMonoid:
     // The type class encoding the notion of neutral element
     // E.g. What if the list of elements if empty?
     trait Monoid[A] extends Semigroup[A]:
-       def empty: A
+      def empty: A
 
     // Monoid laws
     // Left and right identity
-    val leftIdentity = (1 |+| 0) == 1
+    val leftIdentity  = (1 |+| 0) == 1
     val rightIdentity = (0 |+| 1) == 1
 
     // Recursive instances
     // Building bigger instances out of smaller ones
-    implicit def optionSemigroup[A: Semigroup] : Semigroup[Option[A]] =
+    implicit def optionSemigroup[A: Semigroup]: Semigroup[Option[A]] =
       case (Some(x), Some(y)) => Some(Semigroup[A].combine(x, y))
-      case(Some(x), None) => Some(x)
-      case(None, Some(x)) => Some(x)
-      case(None, None) => None
+      case (Some(x), None)    => Some(x)
+      case (None, Some(x))    => Some(x)
+      case (None, None)       => None
 
     val sumMaybeNumbers =
       Semigroup[Option[Int]].combine(Some(1), Some(2))
