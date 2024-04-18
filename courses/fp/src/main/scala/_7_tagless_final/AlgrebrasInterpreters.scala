@@ -2,12 +2,12 @@ package _7_tagless_final
 
 import cats.*
 import cats.data.{Validated, ValidatedNec}
-import cats.syntax.all.*
 import cats.effect.*
+import cats.syntax.all.*
 
-import scala.concurrent.Future
 import java.nio.file.{Files as JFiles, *}
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.Future
 
 object AlgrebrasInterpreters:
   @main
@@ -91,4 +91,6 @@ object AlgrebrasInterpreters:
     object FilesTest:
       def test[F[_]: Sync](deleted: ListBuffer[Path]): Files[F] =
         // We are just pulling the list of deleted paths
-        (path: Path) => Sync[F].delay { deleted += path }
+        (path: Path) => Sync[F].delay(deleted += path)
+  end main
+end AlgrebrasInterpreters

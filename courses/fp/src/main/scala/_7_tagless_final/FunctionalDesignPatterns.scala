@@ -94,24 +94,28 @@ object FunctionalDesignPatterns:
     // Pure implementation
     // We bring the services in as parameters
     // We also need MonadCancel for sequencing and errors
-    class LoginService[F[_]](cache: SessionCache[F], auth: AuthService[F])
-                            (using F: MonadCancel[F, Throwable]):
+    class LoginService[F[_]](cache: SessionCache[F], auth: AuthService[F])(using
+        F: MonadCancel[F, Throwable]
+    ):
       def login(credentials: Credentials): F[LoginResult] =
-        cache.find(credentials).flatMap {
-          case Some(session) => session.pure[F]
-          case None         => auth.auth(credentials).map(t => Session(t))
-        }.map[LoginResult](LoginResult.Success)
+        cache
+          .find(credentials)
+          .flatMap {
+            case Some(session) => session.pure[F]
+            case None          => auth.auth(credentials).map(t => Session(t))
+          }
+          .map[LoginResult](LoginResult.Success)
           .handleError(LoginResult.Failure)
-      
+
     // Injection of dependencies at the edges
     val cache: SessionCache[IO] = ???
-    val auth: AuthService[IO] = ???
-    
+    val auth: AuthService[IO]   = ???
+
     // service
     val loginService: LoginService[IO] = new LoginService[IO](cache, auth)
-    
+
     // run
     val loginResult: LoginResult = loginService.login(("user", "pass"))
-      
+
   end main2
 end FunctionalDesignPatterns
