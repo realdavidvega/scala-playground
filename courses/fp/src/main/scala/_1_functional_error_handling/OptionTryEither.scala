@@ -12,7 +12,7 @@ import scala.util.Try
  * - Report with as much information as possible
  * - Never go silent about errors
  */
-object OptionTryEitherFP:
+object OptionTryEither:
   /* Type system makes errors explicit:
    * - Free documentation
    * - Enforces error handling on compile time
@@ -175,4 +175,4 @@ object OptionTryEitherFP:
       showAddress3(Request())
     ) // Error: type mismatch; found: Option[Account], required: Either[Error, Account]
     // println(showAddress4(Request())) // Error: type mismatch; found: Option[Account], required: Either[Error, Account]
-end OptionTryEitherFP
+end OptionTryEither
