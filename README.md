@@ -6,3 +6,4 @@
 
 ### Code
 1. Playground: playground with random Scala code, including functional programming, typeclases...
+2. Kafka Streams: example of using Kafka Streams to process streaming data.
