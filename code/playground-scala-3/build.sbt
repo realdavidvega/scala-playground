@@ -5,7 +5,7 @@ ThisBuild / scalaVersion := "3.3.1"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "playground",
+    name := "playground-scala-3",
       libraryDependencies ++= cats
   )
 
